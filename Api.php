@@ -59,7 +59,7 @@ final class Api
     public static function parse(string $content): \SimpleXMLElement
     {
         $xml = @simplexml_load_string(preg_replace('/\sxmlns(:\w+)?="[^"]*"/', '', $content));
-        if (false === $xml) {
+        if (false === $xml || 'html' === strtolower($xml->getName())) { // a proxy's or gateway's error page is no answer
             throw new CarrierException('canada_post', 'Canada Post answered with a body that is not XML.');
         }
 
