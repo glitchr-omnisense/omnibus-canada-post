@@ -144,6 +144,9 @@ name, address line, postcode and city, country `CA`, coordinates, the distance c
 kilometres to metres. Opening hours are not read: `openingHours` is always empty. The offices are
 kept in Canada Post's order and cut to `limit`.
 
+> [!WARNING]
+> Known defect: opening hours are never read, so `openingHours` is always empty, where Canada Post's answer carries them.
+
 ## Example
 
 ```php
