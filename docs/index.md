@@ -1,6 +1,6 @@
 # omnibus/canada-post
 
-Canada Post for [omniscient/omnibus](https://github.com/glitchr-studio/omnibus): rates,
+Canada Post for [omnisense/omnibus](https://github.com/glitchr-omnisense/omnibus): rates,
 non-contract shipments (paid by the card on file) or contract shipments with their labels,
 tracking and the nearest post offices, through Canada Post's XML REST web services with HTTP
 basic authentication. The gateway calls:
@@ -23,7 +23,7 @@ development environment, `sandbox: true`). Every call has a 20-second timeout.
 composer require omnibus/canada-post
 ```
 
-Requires PHP 8.2, `omniscient/omnibus` (2.x) and `symfony/http-client` (6.4, 7 or 8); given no
+Requires PHP 8.2, `omnisense/omnibus` (2.x) and `symfony/http-client` (6.4, 7 or 8); given no
 HTTP client, the factory makes one with `HttpClient::create()`. In a Symfony application with
 `Omnibus\Bridge\Symfony\OmnibusBundle`, the factory is registered as soon as the package is
 installed.
@@ -45,7 +45,7 @@ installed.
 | `customer_number` | string | - | yes | the customer number, in the shipment paths |
 | `contract_id` | ?string | `null` | no | a commercial contract: contract shipments and contract rates |
 | `sandbox` | bool | `false` | no | `true`: the development environment |
-| `rates` | list | - | no | prices from configuration instead of Get Rates ([the rates option](https://github.com/glitchr-studio/omnibus/blob/2.x/docs/configuration.md#the-rates-option)): with it, Get Rates is not called |
+| `rates` | list | - | no | prices from configuration instead of Get Rates ([the rates option](https://github.com/glitchr-omnisense/omnibus/blob/2.x/docs/configuration.md#the-rates-option)): with it, Get Rates is not called |
 
 Shipment options read when booking (`Shipment::$options`):
 

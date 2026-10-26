@@ -1,6 +1,6 @@
 # omnibus/canada-post
 
-Canada Post for [omniscient/omnibus](https://github.com/glitchr-studio/omnibus): Get Rates,
+Canada Post for [omnisense/omnibus](https://github.com/glitchr-omnisense/omnibus): Get Rates,
 non-contract shipments (paid by the card on file) or contract shipments with their labels,
 tracking and the nearest post offices - the XML REST web services with basic auth.
 
@@ -8,7 +8,7 @@ tracking and the nearest post offices - the XML REST web services with basic aut
 $gateway = (new CanadaPostGatewayFactory($http))->create($options);   // $http: the application's HTTP client - none given, the factory makes its own; the options below
 ```
 
-No framework needed: the package requires `omniscient/omnibus` and `symfony/http-client`. In a
+No framework needed: the package requires `omnisense/omnibus` and `symfony/http-client`. In a
 Symfony application, the same through the bundle's configuration:
 
 ```yaml
