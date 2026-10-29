@@ -3,6 +3,7 @@
 namespace Omnibus\CanadaPost;
 
 use Omnibus\Exception\CarrierException;
+use Omnibus\Http\Redaction;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -42,7 +43,9 @@ final class Api
             $content = $response->getContent(false);
             $type = $response->getHeaders(false)['content-type'][0] ?? '';
         } catch (HttpExceptionInterface $e) {
-            throw new CarrierException('canada_post', 'Canada Post request failed: '.$e->getMessage(), null, $e);
+            $secrets = $this->secrets();
+
+            throw Redaction::withoutArguments(new CarrierException('canada_post', 'Canada Post request failed: '.Redaction::text($e->getMessage(), $secrets), null, Redaction::copy($e, $secrets)));
         }
         if ($status < 400 && !str_contains($type, 'xml') && !str_starts_with(ltrim($content), '<')) {
             return $content;
@@ -50,7 +53,7 @@ final class Api
         $xml = self::parse($content);
         if ($status >= 400 || 'messages' === $xml->getName()) {
             $message = $xml->message[0] ?? null;
-            throw new CarrierException('canada_post', (string) ($message->description ?? sprintf('HTTP %d', $status)), isset($message->code) ? (string) $message->code : null);
+            throw Redaction::withoutArguments(new CarrierException('canada_post', (string) ($message->description ?? sprintf('HTTP %d', $status)), isset($message->code) ? (string) $message->code : null));
         }
 
         return $xml;
@@ -60,7 +63,7 @@ final class Api
     {
         $xml = @simplexml_load_string(preg_replace('/\sxmlns(:\w+)?="[^"]*"/', '', $content));
         if (false === $xml || 'html' === strtolower($xml->getName())) { // a proxy's or gateway's error page is no answer
-            throw new CarrierException('canada_post', 'Canada Post answered with a body that is not XML.');
+            throw Redaction::withoutArguments(new CarrierException('canada_post', 'Canada Post answered with a body that is not XML.'));
         }
 
         return $xml;
@@ -69,5 +72,15 @@ final class Api
     public function contract(): bool
     {
         return null !== $this->contractId && '' !== $this->contractId;
+    }
+
+    /**
+     * What a failure must not carry: the credentials, and what a request made of them.
+     *
+     * @return list<string>
+     */
+    private function secrets(string ...$more): array
+    {
+        return [$this->username, $this->password, ...$more];
     }
 }

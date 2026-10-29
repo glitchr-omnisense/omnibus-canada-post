@@ -222,6 +222,12 @@ A failed label download after the shipment is created is not raised (above). A m
 `username`, `password` or `customer_number` is an `InvalidConfigException` when the gateway is
 built; `GetSlip`, `Cancel` and `Paperless` raise `RequestNotSupportedException` before any call.
 
+No failure carries the API username and password: a network error's message has them masked as `***`
+(the key parameters of a URL too), its previous is a copy of the HTTP client's exception (the same
+class and code), and no trace of the chain keeps its arguments, where the request's options stood
+([No secret in a
+failure](https://github.com/glitchr-omnisense/omnibus/blob/2.x/docs/errors.md#no-secret-in-a-failure)).
+
 ## Verified, and not
 
 Tested offline: `Tests/CanadaPostGatewayTest.php` (rates in `CAD` cheapest first with their
