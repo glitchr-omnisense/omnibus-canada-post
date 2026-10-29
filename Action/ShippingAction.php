@@ -74,7 +74,7 @@ final class ShippingAction implements ActionInterface, ApiAwareInterface
                     $document = $this->api->call('GET', $labelUrl, null, (string) ($link['media-type'] ?: 'application/pdf'));
                     $content = \is_string($document) ? $document : null;
                 } catch (CarrierException) {
-                    // The label is ready a moment later: GetSlip fetches it from the link.
+                    // The label is ready a moment later: the label keeps its link (Label::$url) to fetch it from.
                 }
             }
         }

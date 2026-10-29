@@ -114,9 +114,8 @@ parcels, with the total weight.
 
 The tracking number is the `tracking-pin`; then the `label` link is fetched with the API
 credentials: its document becomes the label's `content`, the link its `url`. When the label is not
-ready yet, the booking succeeds without content (a comment in `ShippingAction` says `GetSlip`
-fetches it later; `GetSlip` is not supported, so the link in `url` is the way to it, with the same
-basic authentication). The format is `application/zpl` for `ZPL`, `application/pdf` otherwise;
+ready yet, the booking succeeds without content: the link stays in `url`, the way to it, with
+the same basic authentication (`GetSlip` is not supported). The format is `application/zpl` for `ZPL`, `application/pdf` otherwise;
 `trackingUrl` is
 `https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor=<number>`. A response
 without a PIN is a `CarrierException` (`Canada Post booked no shipment.`). `pickupPoint` is not
@@ -141,11 +140,11 @@ order:
 **Pickup points.** Post offices that take Deliver to Post Office parcels (`d2po=true`) near the address's
 postcode and city, at most `min(50, limit)`; the parcel is not used. Each office: its `office-id`,
 name, address line, postcode and city, country `CA`, coordinates, the distance converted from
-kilometres to metres. Opening hours are not read: `openingHours` is always empty. The offices are
-kept in Canada Post's order and cut to `limit`.
-
-> [!WARNING]
-> Known defect: opening hours are never read, so `openingHours` is always empty, where Canada Post's answer carries them.
+kilometres to metres. Opening hours come from each office's Get Post Office Detail (its
+`rel="detail"` link, one call per office): one `hours-list` per day, day 1 Sunday to 7 Saturday,
+read as ISO weekdays; its times in pairs, opening then closing, a missing closing time read
+`24:00` (open to the end of the day). An office whose detail fails keeps no hours; the search
+does not fail for it. The offices are kept in Canada Post's order and cut to `limit`.
 
 ## Example
 

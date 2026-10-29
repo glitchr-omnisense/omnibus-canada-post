@@ -32,15 +32,63 @@ final class PickupAction implements ActionInterface, ApiAwareInterface
     {
         \assert($request instanceof Pickup);
         $near = $request->near;
-        $data = $this->api->call('GET', '/rs/postoffice?'.http_build_query(array_filter(['d2po' => 'true', 'maximum' => min(50, max(1, $request->limit)), 'postalCode' => Mapping::postcode($near), 'city' => $near->city, 'province' => $request->near->company ? null : null])), null, 'application/vnd.cpc.postoffice+xml');
+        $data = $this->api->call('GET', '/rs/postoffice?'.http_build_query(array_filter(['d2po' => 'true', 'maximum' => min(50, max(1, $request->limit)), 'postalCode' => Mapping::postcode($near), 'city' => $near->city])), null, 'application/vnd.cpc.postoffice+xml');
         $points = [];
         foreach ($data->{'post-office'} ?? [] as $office) {
             $a = $office->address;
             $points[] = new PickupPoint('canada_post', (string) $office->{'office-id'}, (string) $office->name,
                 new Address((string) $office->name, [(string) $a->{'office-address'}], (string) $a->{'postal-code'}, (string) $a->city, 'CA'),
-                isset($a->latitude) ? (float) $a->latitude : null, isset($a->longitude) ? (float) $a->longitude : null, [],
+                isset($a->latitude) ? (float) $a->latitude : null, isset($a->longitude) ? (float) $a->longitude : null, $this->hours($office),
                 isset($office->distance) ? (int) round(((float) $office->distance) * 1000) : null);
         }
         $request->setResult(\array_slice($points, 0, $request->limit));
+    }
+
+    /**
+     * Get Post Office Detail, through the office's rel="detail" link: one hours-list per day
+     * (day 1 is Sunday, 7 Saturday), its times in pairs, opening then closing (a missing
+     * closing time: open to the end of the day). ISO weekdays; an office whose detail fails
+     * keeps no hours, the search does not fail for it.
+     *
+     * @return array<int, list<array{string, string}>>
+     */
+    private function hours(\SimpleXMLElement $office): array
+    {
+        $href = null;
+        foreach ($office->link ?? [] as $link) {
+            if ('detail' === (string) $link['rel']) {
+                $href = (string) $link['href'];
+            }
+        }
+        $href ??= '' !== (string) $office->{'office-id'} ? '/rs/postoffice/'.rawurlencode((string) $office->{'office-id'}).'/detail' : null;
+        if (null === $href) {
+            return [];
+        }
+        try {
+            $detail = $this->api->call('GET', $href, null, 'application/vnd.cpc.postoffice+xml');
+        } catch (\Omnibus\Exception\CarrierException) {
+            return [];
+        }
+        if (!$detail instanceof \SimpleXMLElement) {
+            return [];
+        }
+        $hours = [];
+        foreach ($detail->{'hours-list'} ?? [] as $list) {
+            $day = (int) $list->day;
+            if ($day < 1 || $day > 7) {
+                continue;
+            }
+            $times = [];
+            foreach ($list->time ?? [] as $time) {
+                $times[] = (string) $time;
+            }
+            $iso = 1 === $day ? 7 : $day - 1;
+            for ($i = 0; $i < \count($times); $i += 2) {
+                $hours[$iso][] = [$times[$i], $times[$i + 1] ?? '24:00'];
+            }
+        }
+        ksort($hours);
+
+        return $hours;
     }
 }

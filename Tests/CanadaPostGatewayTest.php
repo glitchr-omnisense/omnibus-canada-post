@@ -33,7 +33,8 @@ final class CanadaPostGatewayTest extends TestCase
                 str_ends_with($path, '/ncshipment'), str_ends_with($path, '/shipment') => new MockResponse('<non-contract-shipment-info xmlns="http://www.canadapost.ca/ws/ncshipment-v4"><shipment-id>406951321983787352</shipment-id><tracking-pin>12345678901234</tracking-pin><links><link rel="self" href="https://ct.soa-gw.canadapost.ca/rs/0001234567/ncshipment/406951321983787352" media-type="application/vnd.cpc.ncshipment-v4+xml"/><link rel="label" href="https://ct.soa-gw.canadapost.ca/rs/artifact/76108cb5192002d5/10238/0" media-type="application/pdf"/></links></non-contract-shipment-info>', $xml),
                 str_contains($path, '/rs/artifact/') => new MockResponse('%PDF-1.4 cp', ['response_headers' => ['content-type' => 'application/pdf']]),
                 str_contains($path, '/vis/track/pin/') => new MockResponse('<tracking-detail xmlns="http://www.canadapost.ca/ws/track-v2"><pin>12345678901234</pin><actual-delivery-date>2026-10-02</actual-delivery-date><significant-events><occurrence><event-identifier>1408</event-identifier><event-date>2026-10-02</event-date><event-time>10:15:00</event-time><event-description>Item successfully delivered</event-description><event-site>TORONTO</event-site><event-province>ON</event-province></occurrence><occurrence><event-identifier>0100</event-identifier><event-date>2026-10-01</event-date><event-time>08:00:00</event-time><event-description>Item processed</event-description><event-site>MONTREAL</event-site><event-province>QC</event-province></occurrence></significant-events></tracking-detail>', $xml),
-                '/rs/postoffice' === $path => new MockResponse('<post-office-list xmlns="http://www.canadapost.ca/ws/postoffice"><post-office><office-id>0000123</office-id><name>SHOPPERS DRUG MART #0862</name><distance>0.62</distance><address><office-address>700 BAY ST</office-address><city>TORONTO</city><postal-code>M5G1Z6</postal-code><latitude>43.6565</latitude><longitude>-79.3850</longitude></address></post-office></post-office-list>', $xml),
+                '/rs/postoffice' === $path => new MockResponse('<post-office-list xmlns="http://www.canadapost.ca/ws/postoffice"><post-office><office-id>0000123</office-id><name>SHOPPERS DRUG MART #0862</name><distance>0.62</distance><address><office-address>700 BAY ST</office-address><city>TORONTO</city><postal-code>M5G1Z6</postal-code><latitude>43.6565</latitude><longitude>-79.3850</longitude></address><link rel="detail" href="https://ct.soa-gw.canadapost.ca/rs/postoffice/0000123/detail" media-type="application/vnd.cpc.postoffice+xml"/></post-office></post-office-list>', $xml),
+                '/rs/postoffice/0000123/detail' === $path => new MockResponse('<post-office-detail xmlns="http://www.canadapost.ca/ws/postoffice"><office-id>0000123</office-id><name>SHOPPERS DRUG MART #0862</name><hours-list><day>1</day><time>10:00</time><time>17:00</time></hours-list><hours-list><day>2</day><time>08:00</time><time>12:00</time><time>13:00</time><time>21:00</time></hours-list><hours-list><day>7</day><time>09:00</time></hours-list></post-office-detail>', $xml),
                 default => new MockResponse('<messages xmlns="http://www.canadapost.ca/ws/messages"><message><code>404</code><description>No such resource</description></message></messages>', ['http_code' => 404] + $xml),
             };
         });
@@ -81,5 +82,16 @@ final class CanadaPostGatewayTest extends TestCase
         $points = $this->gateway()->pickupPoints(self::shipment()->recipient);
         self::assertSame('0000123', $points[0]->id);
         self::assertSame(620, $points[0]->distance);
+    }
+
+    /**
+     * Get Post Office Detail (the office's rel="detail" link): hours-list per day, "Day 1 is Sunday
+     * and Day 7 is Saturday", one to four times, opening then closing; "if the closing time is
+     * absent, the store remains open to the end of the day". Read as ISO weekdays.
+     */
+    public function testPostOfficeHoursComeFromTheOfficesDetail(): void
+    {
+        $points = $this->gateway()->pickupPoints(self::shipment()->recipient);
+        self::assertSame([1 => [['08:00', '12:00'], ['13:00', '21:00']], 6 => [['09:00', '24:00']], 7 => [['10:00', '17:00']]], $points[0]->openingHours);
     }
 }
