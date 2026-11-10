@@ -26,13 +26,14 @@ final class CanadaPostGatewayFactory extends GatewayFactory
         $config->defaults([
             'omnibus.factory_name' => 'canada_post',
             'omnibus.factory_title' => 'Canada Post',
+            'omnibus.policy' => __DIR__.'/policy.json',
             'omnibus.required_options' => ['username', 'password', 'customer_number'],
             'contract_id' => null,
             'sandbox' => false,
             'omnibus.api' => function (Config $c) {
                 $http = $this->http ?? HttpClient::create();
 
-                return new Api($http, (string) $c['username'], (string) $c['password'], (string) $c['customer_number'], $c['contract_id'] ?: null, (bool) $c['sandbox']);
+                return new Api($http, (string) $c['username'], (string) $c['password'], (string) $c['customer_number'], $c['contract_id'] ?: null, (bool) $c['sandbox'], backoff: $c->backoff());
             },
             'omnibus.action.rating' => static fn (Config $c) => $c->get('rates') ? null : new RatingAction(),
             'omnibus.action.shipping' => new ShippingAction(),

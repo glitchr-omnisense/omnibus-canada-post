@@ -8,6 +8,7 @@ use Omnibus\Action\ApiAwareTrait;
 use Omnibus\CanadaPost\Api;
 use Omnibus\CanadaPost\Mapping;
 use Omnibus\Exception\CarrierException;
+use Omnibus\Exception\UsageLimitReachedException;
 use Omnibus\Model\Label;
 use Omnibus\Request\Request;
 use Omnibus\Request\Shipping;
@@ -73,7 +74,7 @@ final class ShippingAction implements ActionInterface, ApiAwareInterface
                 try {
                     $document = $this->api->call('GET', $labelUrl, null, (string) ($link['media-type'] ?: 'application/pdf'));
                     $content = \is_string($document) ? $document : null;
-                } catch (CarrierException) {
+                } catch (CarrierException|UsageLimitReachedException) {
                     // The label is ready a moment later: the label keeps its link (Label::$url) to fetch it from.
                 }
             }

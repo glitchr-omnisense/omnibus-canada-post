@@ -1,0 +1,92 @@
+{
+    "$schema": "https://github.com/glitchr-omnisense/contracts/blob/1.x/resources/usage-policy.schema.json",
+    "provider": "canada_post",
+    "rateLimits": [
+        {
+            "max": 646,
+            "window": "minute",
+            "scope": "key",
+            "operations": [
+                "ship",
+                "slip"
+            ],
+            "cost": {
+                "ship": 2
+            },
+            "note": "Group A (create shipment, get shipment, artifact, details, price); upgraded 1,076. A shipment is created then its label fetched: 2."
+        },
+        {
+            "max": 468,
+            "window": "minute",
+            "scope": "key",
+            "operations": [
+                "cancel"
+            ],
+            "note": "Group B (void shipment, refund); upgraded 702."
+        },
+        {
+            "max": 840,
+            "window": "minute",
+            "scope": "key",
+            "operations": [
+                "rate"
+            ],
+            "note": "Group D (get rates, discover services); upgraded 1,399."
+        },
+        {
+            "max": 20,
+            "window": "minute",
+            "scope": "key",
+            "operations": [
+                "track"
+            ],
+            "note": "Group E (tracking summary and details); upgraded 500."
+        },
+        {
+            "max": 468,
+            "window": "minute",
+            "scope": "key",
+            "operations": [
+                "pickupPoints"
+            ],
+            "note": "Group H (nearest post office, its detail); upgraded 702. A search reads each office's detail too: more than one request."
+        }
+    ],
+    "concurrency": null,
+    "rights": {
+        "commercial": "contract",
+        "openSourceRequired": false,
+        "caching": {
+            "permission": "unknown",
+            "maxTtl": null
+        },
+        "storage": "contract",
+        "redistribution": "forbidden",
+        "attribution": {
+            "required": false,
+            "text": null,
+            "url": null,
+            "where": []
+        },
+        "licence": null,
+        "retention": {
+            "maxAge": 0,
+            "covers": "Personal and confidential information: stored on systems in Canada and destroyed immediately after the use it was obtained for (Developer Program terms)"
+        }
+    },
+    "requirements": {
+        "key": true,
+        "userAgent": {
+            "required": false,
+            "pattern": null
+        }
+    },
+    "provenance": {
+        "terms": "https://www.canadapost-postescanada.ca/cpc/en/support/kb/company-policies/terms-conditions/developer-portal-terms-and-conditions.page",
+        "policy": "https://www.canadapost-postescanada.ca/info/mc/business/productsservices/developers/throttlelimits.jsf",
+        "verifiedAt": "2026-11-10",
+        "declaredBy": "maintainer",
+        "contact": "mailto:developer.program@canadapost.postescanada.ca",
+        "notes": "Per API key and minute, a rolling 60-second window (\"Rejected by SLM Monitor\": wait 60 s; calls at least 250 ms apart). The default figures are declared, the upgraded ones in each note. Developer Program terms (December 2025): a revocable, non-transferable licence; offering an application to third parties needs \"platform\" status. No idempotency key on shipments: a shipment is sent once."
+    }
+}

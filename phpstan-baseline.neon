@@ -1,0 +1,85 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 4
+			path: Action/ShippingAction.php
+
+		-
+			message: '#^Parameter \#2 \$province of static method Omnibus\\CanadaPost\\Mapping\:\:addressXml\(\) expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Action/ShippingAction.php
+
+		-
+			message: '#^Method Omnibus\\CanadaPost\\Api\:\:secrets\(\) should return list\<string\> but returns non\-empty\-array\<int\<0, max\>\|string, string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Api.php
+
+		-
+			message: '#^Parameter \#1 \$data of function simplexml_load_string expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Api.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 3
+			path: CanadaPostGatewayFactory.php
+
+		-
+			message: '#^Parameter \#5 \$contractId of class Omnibus\\CanadaPost\\Api constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CanadaPostGatewayFactory.php
+
+		-
+			message: '#^Cannot access offset 1 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 3
+			path: Tests/CanadaPostGatewayTest.php
+
+		-
+			message: '#^Cannot access offset 2 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 5
+			path: Tests/CanadaPostGatewayTest.php
+
+		-
+			message: '#^Cannot access offset 3 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/CanadaPostGatewayTest.php
+
+		-
+			message: '#^Cannot access property \$location on Omnibus\\Model\\TrackingEvent\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CanadaPostGatewayTest.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: Tests/CanadaPostGatewayTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertContains\(\) expects iterable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/CanadaPostGatewayTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertStringContainsString\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 6
+			path: Tests/CanadaPostGatewayTest.php
+
+		-
+			message: '#^Property Omnibus\\CanadaPost\\Tests\\CanadaPostGatewayTest\:\:\$calls type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Tests/CanadaPostGatewayTest.php

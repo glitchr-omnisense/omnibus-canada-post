@@ -208,6 +208,10 @@ omnibus:
                 sandbox: '%env(bool:CANADA_POST_SANDBOX)%'
 ```
 
+## Usage policy
+
+`policy.json` (named in `composer.json`'s `extra.omnisense.policy`) declares Canada Post's per-key, per-minute limits (default figures, the upgraded ones in the notes): 646 shipments (a shipment counts 2: created, then its label), 468 voids, 840 rates, 20 tracking calls, 468 post office searches. Personal information is destroyed once used (`rights.retention`). No idempotency key: a shipment is sent once; a label held by a wait leaves the booking with its link, as a label not ready did. A 429 is a `RateLimitedException`, never retried, and the carrier's next calls wait for its `Retry-After`, unsent. See omnisense/omnibus' [Usage policies and rate limits](https://github.com/glitchr-omnisense/omnibus/blob/2.x/docs/policies.md).
+
 ## Errors
 
 Every failure is an `Omnibus\Exception\CarrierException` whose `carrier` is `canada_post`:
