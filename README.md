@@ -4,6 +4,43 @@ Canada Post for [omnisense/omnibus](https://github.com/glitchr-omnisense/omnibus
 non-contract shipments (paid by the card on file) or contract shipments with their labels,
 tracking and the nearest post offices - the XML REST web services with basic auth.
 
+## Install and a first call
+
+```sh
+composer require omnibus/canada-post
+```
+
+No account for this first call: Canada Post's answer is recorded
+(`Omnibus\Testing\RecordedHttpClient` answers in place of the API), so nothing leaves the process.
+With your own credentials, give the factory your HTTP client (or none: it makes its own) and drop
+the recorded one.
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Omnibus\CanadaPost\CanadaPostGatewayFactory;
+use Omnibus\Testing\RecordedHttpClient;
+
+// Canada Post's answer, recorded: no account, and nothing leaves the process.
+$http = new RecordedHttpClient([
+    '/vis/track/pin/' => RecordedHttpClient::answer('<tracking-detail xmlns="http://www.canadapost.ca/ws/track-v2"><pin>12345678901234</pin>'
+        .'<significant-events><occurrence><event-identifier>1408</event-identifier><event-date>2026-10-02</event-date><event-time>10:15:00</event-time>'
+        .'<event-description>Item successfully delivered</event-description><event-site>TORONTO</event-site><event-province>ON</event-province></occurrence>'
+        .'</significant-events></tracking-detail>', 200, ['content-type' => 'application/xml']),
+]);
+$gateway = (new CanadaPostGatewayFactory($http))->create(['username' => 'user', 'password' => 'pass', 'customer_number' => '0001234567', 'sandbox' => true]);
+
+$tracking = $gateway->track('12345678901234');
+echo $tracking->status->value, ' - ', $tracking->latest()?->description, "\n";   // delivered - Item successfully delivered
+```
+
+A real call needs a Canada Post account (the credentials below). The answer is shaped after Canada
+Post's published documentation; the package has not been run against its service yet.
+
+## Configuration
+
 ```php
 $gateway = (new CanadaPostGatewayFactory($http))->create($options);   // $http: the application's HTTP client - none given, the factory makes its own; the options below
 ```
